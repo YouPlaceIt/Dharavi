@@ -1,0 +1,523 @@
+<?php
+// Start the session
+session_start();
+?>
+<!DOCTYPE html>
+<html>
+<head>
+
+	<style type="text/css">
+	html { height: 100% }
+	body { height: 80%; margin: 40; padding: 0 }
+	#map-canvas { height: 100% }
+	</style>
+	
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAXK2IgKVrtxAbX2KnKEAnAmsVvBNfrhts&sensor=false&libraries=geometry,drawing">
+
+	</script>
+	<script src="https://maps.googleapis.com/maps/api/js"></script>
+	
+	<link rel="stylesheet" type="text/css" media="all" href="css/style.css">
+	<link rel="stylesheet" type="text/css" media="all" href="css/ericprieto-simply-toast-6d5bbb5/simply-toast.css">
+	<link rel="stylesheet" type="text/css" media="all" href="css/pageStyle.css">
+	<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="js/jquery.leanModal.min.js"></script>
+
+	<script type="text/javascript" charset="utf-8" src="ericprieto-simply-toast-6d5bbb5/simply-toast.js"></script>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>	
+
+	<script type="text/javascript" src="js/collectpoints.js"></script> 
+	<script type="text/javascript" src="js/geoencode.js"></script>
+	<script type="text/javascript" src="js/userFunc.js"></script>
+	<script type="text/javascript" src="js/propertiesFunc.js"></script>
+	<script type="text/javascript" src="js/menuFunc.js"></script>
+	<script type="text/javascript" src="js/mapFunc.js"></script>
+	<script type="text/javascript" src="js/menuNegFunc.js"></script>
+	<script type="text/javascript" src="js/roadFunc.js"></script>
+	<script type="text/javascript" src="js/negFunc.js"></script>
+	<script type="text/javascript" src="js/processRoadFunc.js"></script>
+	<script type="text/javascript" src="js/chatBoxFunc.js"></script>
+	<script type="text/javascript" src="js/allFunc.js"></script>
+
+
+
+
+	
+</head>
+<body>
+
+	<nav class="navbar navbar-default" role="navigation" id="non-player">
+		<div class="container-fluid">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<span class="navbar-brand">YouPlaceIt!</span>
+			</div>
+
+	
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav">
+					<li > <a href="#shape_modal" id="modaltrigger1" > Tag Property </a></li>
+					<li><a href="javascript:PopulateNewSelections() "id="AddP">Add properties</a></li>
+					<li><a href="javascript:change_player()" id="RoadC">Road Construction</a></li>
+					<li><a href="#register_modal" id="modaltrigger3">Log In</a></li>
+				</ul>
+			</div><!-- /.navbar-collapse -->
+		</div><!-- /.container-fluid -->
+	</nav>
+	<nav class="navbar navbar-default" role="navigation" id="player">
+		<div class="container-fluid">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<span class="navbar-brand" id="intro">Urban Planning</span>
+			</div>
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav">
+					<li><a href="javascript:retrieveRoad()" id="sAllRoads">Show all Roads</a></li>
+					<li><a href="javascript:reset()" id="resetBut">Reset</a></li>
+					<li><a href="javascript:new_marker()" id="planRoad">Plan Road</a></li>
+					<li><a href="javascript:find_intersection()" id="procPath">Process Path</a></li>
+					<li><a href="javascript:addRoad()" id="PropRoad">Propose Road</a></li>
+					<li><a href="javascript:PopulateRoadList()" id="voteRoad">Vote Road</a></li>
+					<li><a href="javascript:PopulateNegotiationPlaces()" id= "negotRoad">Negotiate</a></li>
+					<li><a href="javascript:PopulateObstructionsForSafePath()" style="display:none;" >Safe Path</a></li>
+					<li><a href="javascript:construction_cost()" id="constrCost">Construction Cost</a></li>
+					<li ><a href="#parameter_modal" id="modaltrigger">Increase Budget</a></li>
+					<li><a href="javascript:chatBoxPopulate()" id="opChat">OpenChat</a></li>
+				</ul>
+			</div><!-- /.navbar-collapse -->
+		</div><!-- /.container-fluid -->
+	</nav>
+<div class="help" id="helpTagProp" style="display:none;">
+		<p>The next step is to tag your properties. You can do that that by pressing the Tag Properties button and selecting your property on the map. 
+		 <p>Before actually tagging it you have to chose if it is a circle or a rectangle, a name for it and the price you want to charge for one square meter of your property. If you make any mistake while tagging, do not worry, you can always fix it during the next step.
+	</div>
+<div class="help" id="helpAddProp" style="display:none;">
+	<p>Press Add Properties to view your newly selected properties and decide if you want to permanently add them to the database or delete them. After each operation Press Add Properties again to refresh the list.
+</div>
+<div class="help" id="helpRoadC" style="display:none;">
+	<p>After you finish adding your properties, you can press Road Construction to move on to the next phase of the game.
+</div>
+<div class="help" id="helpLogIn" style="display:none;">
+	<p>You can chose to login or play as an Unidentified person, that has no determined role within the community but is still able to participate in the discussions that take place in the chatroom or vote.
+	<p>If you chose to have an identity in the game, you should choose to login (or register in case you do not have an account yet).
+	<p>After logging in, you will be assigned a role within the game (at this moment the role is only informative) - as a private person, a government representative, the representative of an NGO, the representative of a company/local industry or a developer.  Each of these roles has their own desires and goals within the game.
+	
+</div>
+<div class="help" id="sAllRoadsHelp" style="display:none;">
+	<p>By pressing Show roads, you can see all the roads that have already been proposed by others.
+
+</div>
+<div class="help" id="helpReset" style="display:none;">
+	<p>If you are not satisfied with the road you have designed, you can erase the drawing by pressing Reset.
+	<p>This button can also be used to deselect the current road. 
+	<p>It is advisable to press Reset before drawing a new road.
+</div>
+<div class="help" id="helpPlanRoad" style="display:none;">
+	<p>If you wish to draw a new road, press Plan Road, then draw your desired road on the map.
+</div>
+
+<div class="help" id="helpNeg" style="display:none;">
+	<p> Choose Negotiate if you want to start the automatic negotiation with the owners of the properties the proposed road is intersecting.
+	<p>The negotiations are done individually for each of the properties.
+
+
+</div>
+
+<div class="help" id="helpCost" style="display:none;">
+	<p> Press Construction Cost to view the cost of the proposed road before the negotiations take place.
+
+
+</div>
+
+<div class="help" id="helpBudget" style="display:none;">
+	<p> Press Increase Budget to introduce your budget or increase it (you start the game with a budget of 0).
+
+</div>
+
+<div class="help" id="helpChat" style="display:none;">
+	<p> You can chose to join the ChatRoom by pressingOpenChat and discuss your decisions with other players, either in the main room or in private chats.
+
+</div>
+
+
+
+
+
+
+
+<div class="help" id="helpPropose" style="display:none;">
+	<p> You can add the road you have designed to the database so that other players can also see it by pressing Propose Road.
+
+</div>
+
+<div class="help" id="helpProcess" style="display:none;">
+	<p> You can determine which properties are affected by the road you have drawn or selected by pressing Process Road. This is a necessary step you you want to populate the negotiation list later on, or if you wish to calculate the price you have to pay to be able to build the road.
+
+</div>
+
+<div class="help" id="helpVote" style="display:none;">
+	<p> If you want to delete or select one of the already proposed roads, press Vote Road. The road you have selected from the drop down list will become black on the map.
+	<p> When a road is selected, you can vote for it or delete it permanently. The selected road becomes the current road - it can be processed and then negotiations can start.
+	<p> To refresh the list, press Vote Road again.
+
+</div>
+
+<div class="help" id="Intro" style="display:none;">
+	<p>Hello, 
+<p>Welcome to YouPlaceIt! a serious game about urban development and community interaction. 
+<p>For the best functionality, please use Chrome or Safari.
+
+<p>You can already see a map of Dharavi and the properties that have already been tagged by other players.
+	
+</div>
+<div class="loginmodal" id="parameter_modal" style="display:none;">
+		<h1>Enter Parameters</h1>
+		<form class="loginform" id="parameter_form" method="post" action="index.html">
+			<!-- <label for="username">Width of Road:</label>
+			<input type="text" name="username" id="width" class="txtfield" tabindex="1"> -->
+
+			<label for="password">Total Budget: ($)</label>
+			<input type="text" name="password" id="cost" class="txtfield" tabindex="2">
+
+			<div class="center"><input type="submit" name="loginbtn" id="loginbtn" class="flatbtn-blu hidemodal" value="Submit" tabindex="3"></div>
+		</form>
+	</div>
+<div class="loginmodal" id="register_modal" style="display:none;">
+		<h1>Login or <a href="https://youplaceit.hum.uu.nl/Dharavi/registration.html"> Register </a></h1>
+		<form class="loginform" id="register_form" method="post" action="index.html">
+			<!-- <label for="username">Width of Road:</label>
+			<input type="text" name="username" id="width" class="txtfield" tabindex="1"> -->
+
+			<label for="UserName">Username:</label>
+			<input type="text" name="password" id="UserName" class="txtfield" tabindex="2">
+			<label for="Password">Password:</label>
+			<input type="text" name="password" id="Password" class="txtfield" tabindex="2">
+
+			<div class="center"><input type="submit" name="loginb" id="loginb" class="flatbtn-blu hidemodal" value="Submit" tabindex="3"></div>
+		</form>
+	</div>
+
+<div class="loginmodal" id="shape_modal" style="display:none;">
+		<h2>Property Details</h2>
+		<form class="loginform" id="shape_form" method="get" action="javascript:tag_dataset()">
+			<label for="username">Shape:</label>
+			<select id="shape" class="txtfield" tabindex="1">
+  				<option value="circle">Circle</option>
+  				<option value="rectangle">Rectangle</option>
+ 			    </select>
+ 			
+			
+			<label for="username">Name:</label>
+			<input type="text" name="username" id="name" class="txtfield" tabindex="1">
+
+			<label for="username"> Owner name and type: <div id="chatUser"> Type: </div><div id="propertyType"> Type: </div></label>
+			<select id="type" class="txtfield" tabindex="1" style="display:none">
+  				<option value="NGO">NGO</option>
+  				<option value="GOV">GOV</option>
+  				<option value="PVT">PVT</option>
+  				<option value="IND">IND</option>
+  				<option value="DEV">DEV</option>
+ 			    </select>
+			<!-- <input type="text" name="username" id="type" class="txtfield" tabindex="1"> -->
+
+			
+			<label for="username">Cost per square meter ($):</label>
+			<input type="text" name="username" id="costpmetersquare" class="txtfield" tabindex="1">
+
+			<label for="username">Negotiation margin (%):</label>
+			<input type="text" name="username" id="margin" class="txtfield" tabindex="1">
+
+			<div class="center"><input type="submit" name="loginbtn" id="loginbtn" class="flatbtn-blu hidemodal" value="Enter" tabindex="3"></div>
+		</form>
+	</div>
+
+		<div id="map-canvas"></div>
+		
+			<div id="addition" style="display: none">
+
+			
+			    Select <select onchange="javascript:additionselectionchanged()" id = "add-places"><option></option></select>
+			    <div id="ongoing_addition">
+
+			    </div>	
+			    <div class="center"><input type="submit" name="addbtn" id="addbtn" class="button" value="Add Property" tabindex="3"></div>
+			    <div class="center"><input type="submit" name="deletebtn" id="deletebtn" class="button" value="Delete Property" tabindex="3"></div>
+			    <div class="center"><input type="submit" name="finishAdd" id="finishAdd" class="button" value="Finish" tabindex="3"></div>
+			</div>
+		
+		<div id="negotiation">
+			<div>
+			    Select <select onchange="javascript:negotiationselectionchanged()" id = "negotiation-places"><option></option></select>
+			    <div id="ongoing_negotiation">
+
+			    </div>	
+			</div>
+		</div>
+		<div id="editRoads" style="display: none">
+			<div>
+			    Select <select onchange="javascript:select_roads_changed()" id = "roads-list"><option></option></select>
+			    <div id="roads_list">
+
+			    </div>	
+			</div>
+			 <div class="center"><input type="submit" name="DeleteRoad" id="DeleteRoad" class="button" value="Delete" tabindex="3"></div>
+			  <div class="center"><input type="submit" name="VoteForRoad" id="VoteForRoad" class="button" value="Vote" tabindex="3"></div>
+		</div>
+		<div id="safe_path">
+			<div>
+			    <form id='obstructions_checklist' action="javascript:CreateSafePath()">
+					
+				</form>
+			</div>
+			</div>
+		<div id="wrapper" style="display: none">
+    		<div id="menu"  >
+        	<p>Welcome, </br> <div id="chatUser1"> User </div></p>
+        	<p class="logout"><a id="exit" href="#">Exit Chat</a></p>
+        	<p ><a id ="sendPM" href="#"> Send a Private Message</a></p>
+       	 	<div style="clear:both"></div>
+    		</div>    
+    	<div  id="chatbox" style="display:none" > 
+        	Chatbox
+	</div>
+	<form class="loginform" id="message_form" method="get" action="javascript:get_message()" >
+        <input name="usermsg" type="text" id="usermsg" >
+        <input name="submitmsg" type="submit"  id="submitmsg" value="Send" />
+    </form>
+
+	<div  id="privateChatbox" style="display:none">
+	Chatbox
+     </div>   	
+    <div id="selectPart">
+       Select <select onchange="javascript:select_users_changed()" id = "messages_for" style="display:none"><option></option>
+   </select>
+
+	<div id="mess">
+
+	</div>	
+			</div>
+		<form class="loginform" id="message_form_private" method="get" action="javascript:get_message_private()" style="display:none">
+        <input name="usermsgP" type="text" id="usermsgP" >
+        <input name="submitmsgP" type="submit"  id="submitmsgP" value="Send" />
+    </form>
+     
+ </div>
+    
+</div>
+	
+	<?php
+// remove all session variables
+session_unset(); 
+
+// destroy the session 
+session_destroy(); 
+?>
+
+
+</body>
+	<script type="text/javascript">
+	$(document).ready(function(){
+    setInterval (loadLog, 250);
+    setInterval (loadLogPrivate, 250);
+     //setInterval (select_users_changed, 250);
+    
+});
+	$(function(){
+		$('#message_form').submit(function(e) {
+			currMsg=$('#usermsg').val();
+			get_message();
+			console.log(currMsg);
+			return false;
+		});
+		$( '#intro').mouseover(function() {
+    	$('#Intro').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#Intro').css('display' , 'none');
+  			});
+		$( '#modaltrigger1').mouseover(function() {
+			$('#Intro').css('display' , 'none');
+    	$('#helpTagProp').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#helpTagProp').css('display' , 'none');
+  			});
+  		$( '#AddP').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpAddProp').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#Intro').css('display' , 'none');
+  			$('#helpAddProp').css('display' , 'none');
+  			});
+  		$( '#modaltrigger3').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpLogIn').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#helpLogIn').css('display' , 'none');
+  			});
+
+  		$( '#RoadC').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpRoadC').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+
+  			$('#helpRoadC').css('display' , 'none');
+  			});
+   		
+   		$( '#sAllRoads').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#sAllRoadsHelp').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#Intro').css('display' , 'none');
+  			$('#sAllRoadsHelp').css('display' , 'none');
+  			});
+
+  		$( '#resetBut').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpReset').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#helpReset').css('display' , 'none');
+  			});
+
+		$( '#planRoad').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpPlanRoad').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+
+  			$('#helpPlanRoad').css('display' , 'none');
+  			});
+
+  		$( '#procPath').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpProcess').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#helpProcess').css('display' , 'none');
+  			});
+		
+		$( '#PropRoad').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpPropose').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#helpPropose').css('display' , 'none');
+  			});
+
+  		$( '#voteRoad').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpVote').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#helpVote').css('display' , 'none');
+  			});
+
+  		$( '#negotRoad').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpNeg').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#helpNeg').css('display' , 'none');
+  			});
+
+  		$( '#constrCost').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpCost').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#helpCost').css('display' , 'none');
+  			});
+
+  		$( '#modaltrigger').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpBudget').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+  			$('#helpBudget').css('display' , 'none');
+  			});
+
+  		$( '#opChat').mouseover(function() {
+  			$('#Intro').css('display' , 'none');
+    	$('#helpChat').css('display' , 'inline');
+    			})
+  		.mouseout(function() {
+
+  			$('#helpChat').css('display' , 'none');
+  			});
+
+		$('#parameter_form').submit(function(e) {
+			budget=$('#cost').val();
+			return false;
+		});
+
+		$('#message_form_private').submit(function(e) {
+   			currMsg=$('#usermsgP').val();
+   			get_message_private();
+   			console.log(currMsg);
+   			return false;
+   		});
+
+		$('#register_form').submit(function(e) {
+			Pass=$('#Password').val();
+			UserName=$('#UserName').val();
+			console.log(Pass);
+			console.log(UserName);
+			return false;
+		});
+		$('#shape_form').submit(function(e){
+			shape_entered=$('#shape').val();
+			name_entered=$('#name').val();
+			type_entered=$('#type').val();
+			//radial_entered=$('#radial').val();
+			cost_entered=$('#costpmetersquare').val();
+			margin_entered=$('#margin').val();
+			console.log(shape_entered);
+			console.log(name_entered);
+			console.log(type_entered);
+			console.log(radial_entered);
+			console.log(cost_entered);
+			console.log(margin_entered);
+			console.log('checked');
+			//return true;
+		});
+		$('#modaltrigger').leanModal({ top: 180, overlay: 0.45, closeButton: ".hidemodal" });
+		
+		$('#modaltrigger1').leanModal({ top: 14, overlay: 0.45, closeButton: ".hidemodal" });
+		$('#modaltrigger3').leanModal({ top: 14, overlay: 0.45, closeButton: ".hidemodal" });
+		window.onload = function() {
+			$('#modaltrigger3').click();
+			$('#Intro').css('display' , 'inline');
+
+		}
+	});
+		console.log(user);
+	$('#chatUser').html(user);
+	$('#propertyType').html(user);	
+	 
+	</script>
+
+
+</html>
+
+
