@@ -1,0 +1,93 @@
+Documentation for developers
+
+The code that is used for the You place it! web app is described in this document,including the routines that are present in each of the files and the way in which they function.
+
+Types of files
+The project is composed of the following types of files:
+* HTML
+* PHP
+* JavaScript
+* CSS
+Actions possible within the game:
+Individual:
+* login
+* tag properties
+* add new tagged properties
+* propose roads
+* visualise  proposed roads
+* delete proposed roads
+Multiplayer:
+* Chat with other players in order to achieve consensus - it can be done in a private chat or with the whole collective of players
+DataBase specifications:
+* a SQL database is used for storing the user and game objects information
+* the database contains 8 tables which are structured as follows:
+    * tables used for user identification:
+        * userdata - containing general user information - ID, Name, Email and Password
+        * WaitList - containing information about the user that is only valid for the current game - the time they last connected, the last role they have been assigned and the assignment to a game round - UserID, UserType, TimeConnected, PlayingGame
+    * tables that deal with the connection between players and game rounds:
+        * GameData - containing the ID of the game round that is played, the IDs of all the players involved and their types
+    * tables concerning messaging in the chat:
+        * messages- containing the sender and receiver ids, the message id, the message text and the time the message has been sent
+    * tables concerning properties
+        * locations_circular - containing the latitude and longitude of the center of the circle, the radius, the name of the property, the id and the type of owner (private, NGO, government, industry), the cost per square meter, the margin for negotiation, the ID of the property and the character of the property (pre-tagged by the developer, meant to be permanent or tagged by a player- meant to be temporary and only last for a game)
+        * locations_rectangular - containing the same type of information as locations_circular, but instead of the centre and radius of the circle, it contains 4 sets of coordinates, representing the corners of the stored quadrilateral
+    * tables concerning roads 
+        * roads_general - containing the road IDs of the proposed roads, alongside with the IDs of the players who proposed them
+        * roads_parts - containing the coordinates of the segments that compose the proposed roads, each entry consists of the ID of the road that the segment belongs to, the order of the given segment within the road it belongs to and 2 sets of coordinates for the endpoints of the segment
+* A more complete view of all the data that is stored in the database can be viewed in the attached db_tables.pdf document
+
+￼
+db_tables.pdf
+138.4 KB
+
+
+
+*     The credentials for connecting to the database are given in the header.php file in the project. If the database will be moved to a different server or the app is run on a local machine, these credentials will need to be changed accordingly.
+Other info about the files and routines:
+* HTML
+    * index.html is the file containing the web page of the game
+    * registration.html - contains the page for the new user registration
+* PHP
+    * the .php files have suggestive names based on what they do 
+    * the php files connect to the database and perform different queries/insertions/deletions
+    * an in-depth description of the contents of the relevant php files can be seen below
+List of PHP files:
+* 
+    * delete_own_roads - called to delete a road based on its ID
+    * fetch_location_circular - called to get a circular location from the database with all it's data - coordinates, name, type, owner id
+    * fetch_location_rectangular- called to get a rectangular location from the database with all it's data - coordinates, name, type, owner id
+    * fetch_messages_private - retrieves a conversation between 2 users based on their ids referred to as sender and receiver
+    * fetch_messages- retrieves all the messages sent in the general chat room in the database irrespective of the senders 
+    * fetch_user_info - retrieves the information about a user within a game session - including the role they were assigned for that particular session
+    * fetch_users - gets the information about all the users that have connected to the app - it is used for generating the list of users for private the chat room
+    * header - contains the information for connecting to the database, in case the name of the database or the server is changed, this is the only script that needs to be modified
+    * insert_location_circular - inserts a circular property in the database
+    * insert_location_rectangular - inserts a rectangular location in the database
+    * insert_message- inserts a new message in the database
+    * insert_road - inserts a new road in the database based on the road id, the user id of the proposer and the parts it is made out of
+    * login- used to check if a user is already registered and if the username and the username and password match
+    * register - adds a new user in the database using their auto generated user id, user name, password and e-mail address.
+* js
+    * the js files contain most of the routines for the app
+    * the names of the .js files and routines within them are suggestive to their actions
+A complete list of the relevant js files and the types of functions contained in them can be seen below:
+*  
+    * allFunc - containing functions for finding a safe path (avoid some properties), negotiation and cost calculation
+    * chatBoxFunc - containing functions for posting and retrieving messages for both the private and general chatroom
+    * collectpoints- functions for visualising pins on the map
+    * login - functions used for the login of users
+    * mapFunc - functions regarding the map of Dharavi and dealing with click events in the first half of the game
+    * menuFunc - functions dealing with the content of the menu regarding the addition of properties and tagging 
+    * menuNegFunc - functions for determining the properties that will be involved in each negotiation that takes place
+    * negFunc - only defines the negotiation margin factor - it is used for numerical negotiations
+    * processRoadFunc - functions for determining the intersections between a certain road and properties that are present on the map
+    * propertiesFunc - function that adds pins with relevant colours and info about the properties on the map (owner name, property type, price, etc.)
+    * registration - functions for registering new users in the database
+    * roadFunc - functions for drawing and processing roads
+    * userFunc - functions that assign a role to each user at login
+
+In case there are any questions, please contact us at :
+youplaceit@gmail.com
+￼
+￼
+￼
